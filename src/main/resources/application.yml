@@ -1,0 +1,8 @@
+management:
+  endpoint:
+    health:
+      show-details: always
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://usrapp-card-statement:djhyBgzLLLhqMXoF@afcveiga-community-clus.zezdf.mongodb.net/CWBanking_CardStatement?retryWrites=true&w=majority
