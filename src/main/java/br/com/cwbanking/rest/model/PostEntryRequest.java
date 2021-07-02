@@ -14,23 +14,23 @@ import lombok.Data;
 @Builder
 public class PostEntryRequest {
 
-	@NotNull
+	@NotNull(message = "The field 'cardId' is required.")
 	private UUID cardId;
 	
-	@NotNull
+	@NotNull(message = "The field 'cardholderId' is required.")
 	private UUID cardholderId;
 	
-	@NotNull
+	@NotNull(message = "The field 'value' is required.")
 	private Double value;
 	
-	@NotBlank
-	@Size(min = 2, max = 64)
+	@NotBlank(message = "The field 'payee' is required.")
+	@Size(min = 2, max = 64, message = "the field 'payee' length must be between 2 and 64")
 	private String payee;
 	
-	@NotBlank
-	@Size(min = 2, max = 128)
+	@NotBlank(message = "The field 'description' is required.")
+	@Size(min = 2, max = 64, message = "the field 'description' length must be between 2 and 128")
 	private String description;
 	
-	@NotNull
+	@NotNull(message = "The field 'saleDate' is required.")
 	private LocalDateTime saleDate;
 }
