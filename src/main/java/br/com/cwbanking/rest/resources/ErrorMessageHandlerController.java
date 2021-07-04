@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -21,7 +22,11 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 public class ErrorMessageHandlerController {
 
-	@ExceptionHandler({ HttpMessageNotReadableException.class, MethodArgumentNotValidException.class })
+	@ExceptionHandler({ 
+		HttpMessageNotReadableException.class, 
+		MethodArgumentNotValidException.class,
+		MissingServletRequestParameterException.class 
+	})
 	@ResponseStatus(code = HttpStatus.BAD_REQUEST)
 	public final ErrorResponse badRequestException(Exception exception, WebRequest request) {
 		
@@ -29,11 +34,6 @@ public class ErrorMessageHandlerController {
 		
 		final List<String> details = new ArrayList<>();
 		String message = null;
-		
-		if(exception instanceof MethodArgumentNotValidException) {
-			MethodArgumentNotValidException manve = (MethodArgumentNotValidException) exception;
-			manve.getAllErrors().stream().forEach(erro -> details.add(erro.getDefaultMessage()));
-		}
 		
 		if(exception instanceof HttpMessageNotReadableException) {
 			HttpMessageNotReadableException mnre = (HttpMessageNotReadableException) exception;
@@ -44,7 +44,19 @@ public class ErrorMessageHandlerController {
 				ife.getPath().get(0).getFieldName();
 				ife.getPath().stream().forEach(path -> details.add("The field '" + path.getFieldName() + "' is invalid."));
 			}
-		}		
+		}	
+		
+		if(exception instanceof MethodArgumentNotValidException) {
+			
+			MethodArgumentNotValidException manve = (MethodArgumentNotValidException) exception;
+			manve.getAllErrors().stream().forEach(erro -> details.add(erro.getDefaultMessage()));
+		}
+		
+		if(exception instanceof MissingServletRequestParameterException) {
+			
+			MissingServletRequestParameterException msrpe = (MissingServletRequestParameterException) exception;
+			details.add("The field '" + msrpe.getParameterName() + "' is required.");
+		}	
 		
 		return new ErrorResponse(
 				LocalDateTime.now(), 

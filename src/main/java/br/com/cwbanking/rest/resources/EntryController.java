@@ -11,6 +11,7 @@ import java.util.UUID;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -91,6 +93,12 @@ public class EntryController {
 			GetEntryResponse response = GetEntryResponse.builder()
 					.id(entry.getId())
 					.inclusionDate(entry.getInclusionDate())
+					.cardholderId(entry.getCardholderId())
+					.cardId(entry.getCardId())
+					.payee(entry.getPayee())
+					.value(entry.getValue())
+					.description(entry.getDescription())
+					.saleDate(entry.getSaleDate())
 					.build();
 
 			EntityModel<GetEntryResponse> responseResource = EntityModel.of(response,
@@ -102,9 +110,16 @@ public class EntryController {
 	
 	@GetMapping(produces = APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)
-	public Flux<GetEntryResponse> find() {
+	public Flux<GetEntryResponse> find(
+			final @RequestParam(required = true) UUID cardholderId,
+			final @RequestParam(required = false) UUID invoiceId,
+			final @RequestParam(required = false) UUID cardId,
+			final @RequestParam(required = false, defaultValue = "0") Integer page,
+            final @RequestParam(required = false, defaultValue = "5") Integer size) {
 		
-		return service.find().map(entry -> {
+		return service.find(cardholderId, invoiceId, cardId, PageRequest.of(page, size))
+				.map(entry -> {
+					
 			GetEntryResponse response = GetEntryResponse.builder()
 					.id(entry.getId())
 					.inclusionDate(entry.getInclusionDate())
